@@ -1,0 +1,49 @@
+" Syntax highlighting
+syntax enable
+
+" Display line numbers
+set number
+
+" Tab configuration
+set tabstop=4   " Number of space characters per tab
+set expandtab   " Insert spaces instead of tabs
+set autoindent  " Copy the indentation from the previous line
+
+" Whitespace character configuration
+set showbreak=↪
+set listchars=tab:▸\ ,trail:·,extends:❯,precedes:❮
+set list
+
+" Minimum number of visible lines above and below the cursor
+set scrolloff=8
+
+" Search configuration
+set hlsearch    " Enable search highlighting
+set incsearch   " See the search results as you start typing
+set ignorecase  " Case insensitive search
+set smartcase   " Case sensitive search if the query contains capital letters
+
+" Always display the status line
+set laststatus=2
+
+" Clear the last search highlight by hitting return
+nnoremap <silent> <CR> :nohlsearch<CR><CR>
+
+" Git commit configuration
+autocmd FileType gitcommit setlocal textwidth=72
+autocmd FileType gitcommit setlocal spell
+
+" Automatically install plugin manager
+if empty(glob('~/.vim/autoload/plug.vim'))
+    " Install plugin manager
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    " Install plugins
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+" Plugin list
+call plug#begin()
+    " Light status line
+    Plug 'itchyny/lightline.vim'
+call plug#end()
