@@ -1,0 +1,122 @@
+# Enable Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Handle appearance in different operating systems
+if [[ "$OSTYPE" == (darwin|freebsd)* ]]; then
+    # Manually set $LS_COLORS by getting the BSD's default $LSCOLORS value from "man ls" and transforming it to
+    # GNU's $LS_COLORS with the following web utility: https://geoff.greer.fm/lscolors/
+    export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+
+    # Enable colours in BSD ls
+    alias ls='ls -G'
+else
+    # Ensure $LS_COLORS is set
+    eval "$(dircolors -b)"
+
+    # Enable colours in GNU ls
+    alias ls='ls --color=auto'
+fi
+
+# Nicer ls (note: passing "--all" twice is not a typo, it shows the "." and ".." directories)
+alias ll='exa --long --all --all --git --icons --group --group-directories-first'
+
+# History
+HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history # History file
+HISTSIZE=100000                         # Number of lines kept in memory within one session
+SAVEHIST=100000                         # Number of lines to be stored for use in future sessions
+setopt appendhistory                    # Append the new history to the old, rather than overwriting
+setopt incappendhistory                 # Write to history file immediately, rather than when shell exits
+setopt nosharehistory                   # Do not share history among all current sessions
+setopt extendedhistory                  # Write history in :start:elapsed;command format
+setopt histignoredups                   # Do not store a history line if it is the same as the previous one
+setopt histignorealldups                # Remove copies of lines still in the history list, keeping the newly added one
+setopt histexpiredupsfirst              # Expire duplicates first when trimming history
+setopt histsavenodups                   # Do not save duplicated lines more than once
+setopt histfindnodups                   # When searching history, do not repeat commands
+setopt histreduceblanks                 # Remove extra blanks from each command added to history
+
+# Do not show extra information (like "/" at the end of a directory name) in the completion menu
+setopt nolisttypes
+# Try normal completion first, then spelling correction, and finally approximate completion
+zstyle ':completion:*' completer _complete _correct _approximate
+# Show hidden files, but hide "." and ".." from completion
+zstyle ':completion:*' file-patterns '%p(D):globbed-files *(D-/):directories' '*(D):all-files'
+# Enable colours for completions
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# Case insensitive completion
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+# Move the cursor around the list of completions to select one
+zstyle ':completion:*' menu select 2
+# Make ".." part of the autocompletion, so that "/" is appended when hitting tab after ".."
+zstyle ':completion:*' special-dirs ..
+# Highlight the process ID in the kill completion menu
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+# Prevent offering a file, process, etc. that is already in the command line
+zstyle ':completion:*:(diff|kill|rm|rmdir):*' ignore-line true
+# Enable completion system
+autoload -Uz compinit && compinit
+
+# Colour the manual by using "bat" as the pager
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# Configure NVM
+export NVM_LAZY_LOAD=true   # Defer initialisation until actually needed
+export NVM_COMPLETION=true  # Enable completion profile
+export NVM_AUTO_USE=true    # Automatically load or install the required node version in .nvmrc
+
+# Install Zinit
+[[ ! -f ~/.zinit/bin/zinit.zsh ]] && {
+    command mkdir -p ~/.zinit
+    command git clone https://github.com/zdharma-continuum/zinit ~/.zinit/bin
+}
+
+# Use Zinit
+source ~/.zinit/bin/zinit.zsh
+
+# Enable Zinit completions
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# Install Powerlevel10k prompt theme
+zinit depth'1' light-mode for \
+    romkatv/powerlevel10k
+
+# Load Zinit plugins
+zinit wait lucid light-mode for \
+        OMZL::clipboard.zsh \
+        lukechilds/zsh-nvm \
+    atinit'zicompinit; zicdreplay' \
+        zdharma-continuum/fast-syntax-highlighting \
+    atload'_zsh_autosuggest_start' \
+        zsh-users/zsh-autosuggestions \
+    blockf atpull'zinit creinstall -q .' \
+        zsh-users/zsh-completions \
+    from'gh-r' as'program' pick'bin/exa' \
+        ogham/exa \
+    from'gh-r' as'program' mv'bat* -> bat' pick'bat/bat' \
+        @sharkdp/bat \
+    from'gh-r' as'program' pick'diff-so-fancy' atclone'
+        git config --global core.pager "diff-so-fancy | less --tabs=4 -FXRi";
+        git config --global interactive.diffFilter "diff-so-fancy --patch"' \
+        so-fancy/diff-so-fancy \
+    as'program' pick"$ZPFX/sdkman/bin/sdk" id-as'sdkman' run-atpull \
+        atclone"curl https://get.sdkman.io/ | SDKMAN_DIR=$ZPFX/sdkman bash" \
+        atpull"SDKMAN_DIR=$ZPFX/sdkman sdk selfupdate" \
+        atinit"export SDKMAN_DIR=$ZPFX/sdkman; source $ZPFX/sdkman/bin/sdkman-init.sh" \
+        zdharma-continuum/null
+
+# Install the 'pack' ice requirements immediately (by not using the 'wait' ice)
+zinit lucid light-mode for \
+    zdharma-continuum/zinit-annex-patch-dl \
+    from'gh-r' as'program' mv'jq-* -> jq' pick'jq' stedolan/jq
+
+# Install fzf with key bindings (like Ctrl+R)
+zinit pack'binary+keys' for fzf
+
+# The "extras" script is used to store any config that, unlike this file, is not shared between different environments
+[[ -f ~/.zsh_extras.zsh ]] && source ~/.zsh_extras.zsh
+
+# Load Powerlevel10k prompt
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

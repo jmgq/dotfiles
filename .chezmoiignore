@@ -1,1 +1,6 @@
 README.md
+
+# Do not install the ZSH config in Windows
+{{ if eq .chezmoi.os "windows" }}
+.zshrc
+{{ end }}
