@@ -1,0 +1,8 @@
+{
+    "cSpell.language": "en-GB",
+    "editor.renderWhitespace": "all",
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "telemetry.telemetryLevel": "off",
+}

@@ -4,3 +4,15 @@ README.md
 {{ if eq .chezmoi.os "windows" }}
 .zshrc
 {{ end }}
+
+# Install the VS Code settings in the correct path depending on the operating
+# system, but do not install it in WSL
+{{ if (or (ne .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) }}
+.config/
+{{ end }}
+{{ if ne .chezmoi.os "darwin" }}
+Library/
+{{ end }}
+{{ if ne .chezmoi.os "windows" }}
+AppData/
+{{ end }}
