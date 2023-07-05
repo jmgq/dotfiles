@@ -31,7 +31,7 @@ chezmoi diff
 
 Apply changes:
 ```
-chezmoi apply
+chezmoi apply --interactive
 ```
 
 Jump to the chezmoi directory (in a new subshell):
@@ -41,7 +41,7 @@ chezmoi cd
 
 Pull the latest version from the source repo and apply any changes:
 ```
-chezmoi update
+chezmoi update --interactive
 ```
 
 You can pass the `--dry-run` flag to any command to simulate its output without actually running it.
