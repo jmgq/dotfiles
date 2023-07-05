@@ -5,8 +5,8 @@ README.md
 .zshrc
 {{ end }}
 
-# Install the VS Code settings in the correct path depending on the operating
-# system, but do not install it in WSL
+# Install the VS Code and Sublime Text settings in the correct path depending
+# on the operating system, but do not install them in WSL
 {{ if (or (ne .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft")) }}
 .config/
 {{ end }}
