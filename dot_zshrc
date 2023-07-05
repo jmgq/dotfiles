@@ -110,7 +110,7 @@ zinit wait lucid light-mode for \
 # Install the 'pack' ice requirements immediately (by not using the 'wait' ice)
 zinit lucid light-mode for \
     zdharma-continuum/zinit-annex-patch-dl \
-    from'gh-r' as'program' mv'jq-* -> jq' pick'jq' stedolan/jq
+    from'gh-r' as'program' mv'jq-* -> jq' pick'jq' jqlang/jq
 
 # Install fzf with key bindings (like Ctrl+R)
 zinit pack'binary+keys' for fzf
